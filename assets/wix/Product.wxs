@@ -58,7 +58,9 @@
     Manufacturer="Microsoft Corporation"
     UpgradeCode="$(var.UpgradeCode)">
     <!-- Properties About The Package -->
-    <Package Id="*" Keywords="Installer" Platform="$(sys.BUILDARCH)" InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Description="PowerShell package" Comments="PowerShell for every system" />
+    <Package Id="*" Keywords="Installer" Platform="$(sys.BUILDARCH)" InstallerVersion="200" Compressed="yes" Description="PowerShell package" Comments="PowerShell for every system" />
+    <!-- ALLUSERS=1 (default) installs per-machine (requires admin). Set ALLUSERS="" for a per-user install. -->
+    <Property Id="ALLUSERS" Value="1" Secure="yes" />
     <!-- Add PowerShell icon for executable -->
     <Icon Id="PowerShellExe.ico" SourceFile="$(var.IconPath)" />
     <!-- Add PowerShell icon in Add/Remove Programs -->
@@ -111,15 +113,19 @@
 
     <!-- Property: INSTALLFOLDER -->
     <Property Id="PREVIOUS_INSTALLFOLDER">
-      <RegistrySearch Id="GetSavedInstallFolder" Root="HKLM" Key="$(var.InstallerPropertiesKey)" Name="InstallFolder" Type="raw" />
+      <RegistrySearch Id="GetSavedInstallFolder" Root="HKMU" Key="$(var.InstallerPropertiesKey)" Name="InstallFolder" Type="raw" />
     </Property>
     <SetProperty Id="INSTALLFOLDER" Action="InstallFolder_SetFromSaved" After="AppSearch" Value="[PREVIOUS_INSTALLFOLDER]" Sequence="first">
       not INSTALLFOLDER and PREVIOUS_INSTALLFOLDER
     </SetProperty>
+    <!-- For per-user installs, default INSTALLFOLDER to LocalAppData\PowerShell instead of Program Files -->
+    <SetProperty Id="INSTALLFOLDER" Action="InstallFolder_SetUserDefault" After="InstallFolder_SetFromSaved" Value="[LocalAppDataFolder]PowerShell" Sequence="first">
+      ALLUSERS="" AND NOT INSTALLFOLDER
+    </SetProperty>
 
     <!-- Property: ADD_PATH -->
     <Property Id="PREVIOUS_ADD_PATH">
-      <RegistrySearch Id="GetSavedAddToPath" Root="HKLM" Key="$(var.InstallerPropertiesKey)" Name="AddToPath" Type="raw" />
+      <RegistrySearch Id="GetSavedAddToPath" Root="HKMU" Key="$(var.InstallerPropertiesKey)" Name="AddToPath" Type="raw" />
     </Property>
     <SetProperty Id="ADD_PATH" Action="AddToPath_SetFromSaved" After="AppSearch" Value="[PREVIOUS_ADD_PATH]" Sequence="first">
       not ADD_PATH and PREVIOUS_ADD_PATH
@@ -136,7 +142,7 @@
 
     <!-- Property: REGISTER_MANIFEST -->
     <Property Id="PREVIOUS_REGISTER_MANIFEST">
-      <RegistrySearch Id="GetSavedRegisterManifest" Root="HKLM" Key="$(var.InstallerPropertiesKey)" Name="RegisterManifest" Type="raw" />
+      <RegistrySearch Id="GetSavedRegisterManifest" Root="HKMU" Key="$(var.InstallerPropertiesKey)" Name="RegisterManifest" Type="raw" />
     </Property>
     <SetProperty Id="REGISTER_MANIFEST" Action="RegisterManifest_SetFromSaved" After="AppSearch" Value="[PREVIOUS_REGISTER_MANIFEST]" Sequence="first">
       not REGISTER_MANIFEST and PREVIOUS_REGISTER_MANIFEST
@@ -153,7 +159,7 @@
 
     <!-- Property: ENABLE_PSREMOTING -->
     <Property Id="PREVIOUS_ENABLE_PSREMOTING">
-      <RegistrySearch Id="GetSavedEnablePsRemoting" Root="HKLM" Key="$(var.InstallerPropertiesKey)" Name="EnablePsRemoting" Type="raw" />
+      <RegistrySearch Id="GetSavedEnablePsRemoting" Root="HKMU" Key="$(var.InstallerPropertiesKey)" Name="EnablePsRemoting" Type="raw" />
     </Property>
     <SetProperty Id="ENABLE_PSREMOTING" Action="EnablePsRemoting_SetFromSaved" After="AppSearch" Value="[PREVIOUS_ENABLE_PSREMOTING]" Sequence="first">
       not ENABLE_PSREMOTING and PREVIOUS_ENABLE_PSREMOTING
@@ -167,7 +173,7 @@
 
     <!-- Property: DISABLE_TELEMETRY -->
     <Property Id="PREVIOUS_DISABLE_TELEMETRY">
-      <RegistrySearch Id="GetSavedDisableTelemetry" Root="HKLM" Key="$(var.InstallerPropertiesKey)" Name="DisableTelemetry" Type="raw" />
+      <RegistrySearch Id="GetSavedDisableTelemetry" Root="HKMU" Key="$(var.InstallerPropertiesKey)" Name="DisableTelemetry" Type="raw" />
     </Property>
     <SetProperty Id="DISABLE_TELEMETRY" Action="DisableTelemetry_SetFromSaved" After="AppSearch" Value="[PREVIOUS_DISABLE_TELEMETRY]" Sequence="first">
       not DISABLE_TELEMETRY and PREVIOUS_DISABLE_TELEMETRY
@@ -181,7 +187,7 @@
 
     <!-- Property: ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL -->
     <Property Id="PREVIOUS_ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL">
-      <RegistrySearch Id="GetSavedAddExplorerContextMenuOpenPowerShell" Root="HKLM" Key="$(var.InstallerPropertiesKey)" Name="AddExplorerContextMenuOpenPowerShell" Type="raw" />
+      <RegistrySearch Id="GetSavedAddExplorerContextMenuOpenPowerShell" Root="HKMU" Key="$(var.InstallerPropertiesKey)" Name="AddExplorerContextMenuOpenPowerShell" Type="raw" />
     </Property>
     <SetProperty Id="ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL" Action="AddExplorerContextMenuOpenPowerShell_SetFromSaved" After="AppSearch" Value="[PREVIOUS_ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL]" Sequence="first">
       not ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL and PREVIOUS_ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL
@@ -195,7 +201,7 @@
 
     <!-- Property: ADD_FILE_CONTEXT_MENU_RUNPOWERSHELL -->
     <Property Id="PREVIOUS_ADD_FILE_CONTEXT_MENU_RUNPOWERSHELL">
-      <RegistrySearch Id="GetSavedAddFileContextMenuRunPowerShell" Root="HKLM" Key="$(var.InstallerPropertiesKey)" Name="AddFileContextMenuRunPowerShell" Type="raw" />
+      <RegistrySearch Id="GetSavedAddFileContextMenuRunPowerShell" Root="HKMU" Key="$(var.InstallerPropertiesKey)" Name="AddFileContextMenuRunPowerShell" Type="raw" />
     </Property>
     <SetProperty Id="ADD_FILE_CONTEXT_MENU_RUNPOWERSHELL" Action="AddFileContextMenuRunPowerShell_SetFromSaved" After="AppSearch" Value="[PREVIOUS_ADD_FILE_CONTEXT_MENU_RUNPOWERSHELL]" Sequence="first">
       not ADD_FILE_CONTEXT_MENU_RUNPOWERSHELL and PREVIOUS_ADD_FILE_CONTEXT_MENU_RUNPOWERSHELL
@@ -209,7 +215,7 @@
 
     <!-- Property: USE_MU -->
     <Property Id="PREVIOUS_USE_MU">
-      <RegistrySearch Id="GetSavedUseMU" Root="HKLM" Key="$(var.InstallerPropertiesKey)" Name="UseMU" Type="raw" />
+      <RegistrySearch Id="GetSavedUseMU" Root="HKMU" Key="$(var.InstallerPropertiesKey)" Name="UseMU" Type="raw" />
     </Property>
     <SetProperty Id="USE_MU" Action="UseMU_SetFromSaved" After="AppSearch" Value="[PREVIOUS_USE_MU]" Sequence="first">
       not USE_MU and PREVIOUS_USE_MU
@@ -226,7 +232,7 @@
 
     <!-- Property: ENABLE_MU -->
     <Property Id="PREVIOUS_ENABLE_MU">
-      <RegistrySearch Id="GetSavedEnableMU" Root="HKLM" Key="$(var.InstallerPropertiesKey)" Name="EnableMU" Type="raw" />
+      <RegistrySearch Id="GetSavedEnableMU" Root="HKMU" Key="$(var.InstallerPropertiesKey)" Name="EnableMU" Type="raw" />
     </Property>
     <SetProperty Id="ENABLE_MU" Action="EnableMU_SetFromSaved" After="AppSearch" Value="[PREVIOUS_ENABLE_MU]" Sequence="first">
       not ENABLE_MU and PREVIOUS_ENABLE_MU
@@ -277,13 +283,13 @@
       <!-- Do not remove shortcuts on upgrade to preserve user shortcuts pinned to Taskbar, see https://stackoverflow.com/a/33402698/1810304 -->
       <RemoveShortcuts>Installed AND NOT UPGRADINGPRODUCTCODE</RemoveShortcuts>
       <Custom Action="RegisterManifest" After="InstallFiles">
-        <![CDATA[NOT Installed AND (REGISTER_MANIFEST=1)]]>
+        <![CDATA[NOT Installed AND (REGISTER_MANIFEST=1) AND ALLUSERS="1"]]>
       </Custom>
       <Custom Action="EnablePSRemoting" After="InstallFiles">
-        <![CDATA[NOT Installed AND (ENABLE_PSREMOTING=1)]]>
+        <![CDATA[NOT Installed AND (ENABLE_PSREMOTING=1) AND ALLUSERS="1"]]>
       </Custom>
       <Custom Action="EnableMU" After="InstallFiles">
-        <![CDATA[NOT Installed AND (ENABLE_MU=1)]]>
+        <![CDATA[NOT Installed AND (ENABLE_MU=1) AND ALLUSERS="1"]]>
       </Custom>
     </InstallExecuteSequence>
     <UI>
@@ -332,12 +338,16 @@
       <ComponentRef Id="ApplicationProgramsMenuShortcut"/>
       <ComponentRef Id="MURegistryEntries"/>
       <ComponentRef Id="RegistryEntries"/>
+      <ComponentRef Id="RegistryEntriesPerUser"/>
       <?if $(var.IsPreview)!=True?>
       <ComponentRef Id="AppPath"/>
       <?endif?>
       <ComponentRef Id="SetPath"/>
+      <ComponentRef Id="SetPathPerUser"/>
       <ComponentRef Id="Telemetry"/>
+      <ComponentRef Id="TelemetryPerUser"/>
       <ComponentRef Id="DisableTelemetry"/>
+      <ComponentRef Id="DisableTelemetryPerUser"/>
       <ComponentRef Id="ExplorerContextMenu"/>
       <ComponentRef Id="PowerShellFileContextMenu"/>
       <ComponentRef Id="SaveInstallerProperties"/>
@@ -374,16 +384,25 @@
           <Directory Id="VersionFolder" Name="$(var.SimpleProductVersion)">
             <Component Id="Telemetry" Guid="{80520f20-471d-4d08-adc8-bab637627b39}" KeyPath="yes">
               <!-- Should retain component GUID since this is a shared, non-file, non-registry resource. -->
+              <!-- Per-machine: sets POWERSHELL_DISTRIBUTION_CHANNEL in system environment -->
+              <Condition>ALLUSERS="1"</Condition>
               <Environment Id="PowerShellDistributionChannel" Action="create" Name="POWERSHELL_DISTRIBUTION_CHANNEL" Permanent="no" System="yes" Value="MSI:[WINDOWS_PRODUCT_NAME]"/>
             </Component>
+            <Component Id="TelemetryPerUser" Guid="{a4d1e9c3-5b2f-4a8d-9e7b-1c6f3d2a8b5e}" KeyPath="yes">
+              <!-- Per-user: sets POWERSHELL_DISTRIBUTION_CHANNEL in user environment -->
+              <Condition>ALLUSERS=""</Condition>
+              <Environment Id="PowerShellDistributionChannelUser" Action="create" Name="POWERSHELL_DISTRIBUTION_CHANNEL" Permanent="no" System="no" Value="MSI:[WINDOWS_PRODUCT_NAME]"/>
+            </Component>
             <Component Id="MURegistryEntries">
-              <Condition>USE_MU=1</Condition>
+              <Condition>USE_MU=1 AND ALLUSERS="1"</Condition>
               <!-- Create registry key to allow opt-out of MU servicing without opting out of MU completely.  We don't want to uninstall because it's used by both Preview and Stable and the detection relies on PS7 being installed for this to take effect. -->
               <RegistryKey Root="HKLM" Key="Software\Microsoft\PowerShellCore" Action="create" ForceCreateOnInstall="yes">
                   <RegistryValue Type="integer" Value="1" Name="UseMU"  KeyPath="yes"/>
               </RegistryKey>
             </Component>
             <Component Id="RegistryEntries">
+              <!-- Per-machine: detection key in HKLM -->
+              <Condition>ALLUSERS="1"</Condition>
               <!-- create key for easy detection of a particular version of a powershell core package
                     The upgrade code is used in the key because it will change when we allow SxS       -->
               <RegistryKey Root="HKLM" Key="Software\Microsoft\PowerShellCore\InstalledVersions\$(var.UpgradeCode)" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes">
@@ -393,9 +412,21 @@
               </RegistryKey>
 
             </Component>
+            <Component Id="RegistryEntriesPerUser">
+              <!-- Per-user: detection key in HKCU -->
+              <Condition>ALLUSERS=""</Condition>
+              <RegistryKey Root="HKCU" Key="Software\Microsoft\PowerShellCore\InstalledVersions\$(var.UpgradeCode)" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes">
+                  <RegistryValue Type="string" Value="$(var.ProductSemanticVersion)" Name="SemanticVersion" KeyPath="yes"/>
+                  <RegistryValue Type="string" Value="[VersionFolder]" Name="InstallLocation" />
+                  <RegistryValue Type="string" Value="[ProductCode]" Name="ProductCode" />
+              </RegistryKey>
+
+            </Component>
             <?if $(var.IsPreview)!=True?>
             <Component Id="AppPath">
               <!-- register ourselves in application registry so can be started using just Win+R `pwsh.exe` -->
+              <!-- App Paths is a machine-level feature; skipped for per-user installs -->
+              <Condition>ALLUSERS="1"</Condition>
               <RegistryKey Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\pwsh.exe" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes">
                   <!-- As a shared path, the last one to install will overwrite any previous value. It also needs to be in its own component to properly ref-count and be removed when appropriate. -->
                   <RegistryValue Type="string" Value="[VersionFolder]pwsh.exe" KeyPath="yes"/>
@@ -403,15 +434,30 @@
             </Component>
             <?endif?>
             <Component Id="DisableTelemetry" Guid="{E86F5C91-3721-4C5C-A31F-1F0A5A468573}" KeyPath="yes">
-              <Condition>DISABLE_TELEMETRY=1</Condition>
+              <!-- Per-machine: sets POWERSHELL_TELEMETRY_OPTOUT in system environment -->
+              <Condition>DISABLE_TELEMETRY=1 AND ALLUSERS="1"</Condition>
               <Environment Id="PowerShellTelemetryOptout" Action="set" Name="POWERSHELL_TELEMETRY_OPTOUT" Permanent="no" System="yes" Value="1"/>
             </Component>
+            <Component Id="DisableTelemetryPerUser" Guid="{b5e2f0d4-6c3a-4b9e-af8c-2d7e4b3c9a6f}" KeyPath="yes">
+              <!-- Per-user: sets POWERSHELL_TELEMETRY_OPTOUT in user environment -->
+              <Condition>DISABLE_TELEMETRY=1 AND ALLUSERS=""</Condition>
+              <Environment Id="PowerShellTelemetryOptoutUser" Action="set" Name="POWERSHELL_TELEMETRY_OPTOUT" Permanent="no" System="no" Value="1"/>
+            </Component>
             <!-- add ourselves to %PATH% so pwsh.exe can be started from Windows PowerShell or cmd.exe -->
+            <!-- Per-machine: appends to system PATH, tracking in HKLM -->
             <Component Id="SetPath">
-              <Condition>ADD_PATH=1</Condition>
+              <Condition>ADD_PATH=1 AND ALLUSERS="1"</Condition>
               <Environment Id="PATH" Action="set" Name="PATH" Part="last" Permanent="no" System="yes" Value="$(var.PwshPath)"/>
               <!-- Can't use a shared component GUID here either since the path we add to PATH varies on the actual directory path. Use a key that represents this same path. -->
               <RegistryKey Root="HKLM" Key="Software\Microsoft\PowerShellCore\InstalledVersions\$(var.UpgradeCode)">
+                <RegistryValue Type="string" Name="InstallDir" Value="[VersionFolder]" KeyPath="yes"/>
+              </RegistryKey>
+            </Component>
+            <!-- Per-user: appends to user PATH, tracking in HKCU -->
+            <Component Id="SetPathPerUser">
+              <Condition>ADD_PATH=1 AND ALLUSERS=""</Condition>
+              <Environment Id="PATHUser" Action="set" Name="PATH" Part="last" Permanent="no" System="no" Value="$(var.PwshPath)"/>
+              <RegistryKey Root="HKCU" Key="Software\Microsoft\PowerShellCore\InstalledVersions\$(var.UpgradeCode)">
                 <RegistryValue Type="string" Name="InstallDir" Value="[VersionFolder]" KeyPath="yes"/>
               </RegistryKey>
             </Component>
@@ -479,15 +525,16 @@
               </RegistryKey>
             </Component>
             <Component Id="SaveInstallerProperties" Permanent="yes">
-              <RegistryValue Root="HKLM" Key="$(var.InstallerPropertiesKey)" Name="InstallFolder" Value="[INSTALLFOLDER]" Type="string" />
-              <RegistryValue Root="HKLM" Key="$(var.InstallerPropertiesKey)" Name="AddToPath" Value="[ADD_PATH]" Type="string" />
-              <RegistryValue Root="HKLM" Key="$(var.InstallerPropertiesKey)" Name="RegisterManifest" Value="[REGISTER_MANIFEST]" Type="string" />
-              <RegistryValue Root="HKLM" Key="$(var.InstallerPropertiesKey)" Name="EnablePSRemoting" Value="[ENABLE_PSREMOTING]" Type="string" />
-              <RegistryValue Root="HKLM" Key="$(var.InstallerPropertiesKey)" Name="DisableTelemetry" Value="[DISABLE_TELEMETRY]" Type="string" />
-              <RegistryValue Root="HKLM" Key="$(var.InstallerPropertiesKey)" Name="AddExplorerContextMenuOpenPowerShell" Value="[ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL]" Type="string" />
-              <RegistryValue Root="HKLM" Key="$(var.InstallerPropertiesKey)" Name="AddFileContextMenuRunPowerShell" Value="[ADD_FILE_CONTEXT_MENU_RUNPOWERSHELL]" Type="string" />
-              <RegistryValue Root="HKLM" Key="$(var.InstallerPropertiesKey)" Name="UseMU" Value="[USE_MU]" Type="string" />
-              <RegistryValue Root="HKLM" Key="$(var.InstallerPropertiesKey)" Name="EnableMU" Value="[ENABLE_MU]" Type="string" />
+              <!-- HKMU automatically maps to HKLM for per-machine installs and HKCU for per-user installs -->
+              <RegistryValue Root="HKMU" Key="$(var.InstallerPropertiesKey)" Name="InstallFolder" Value="[INSTALLFOLDER]" Type="string" />
+              <RegistryValue Root="HKMU" Key="$(var.InstallerPropertiesKey)" Name="AddToPath" Value="[ADD_PATH]" Type="string" />
+              <RegistryValue Root="HKMU" Key="$(var.InstallerPropertiesKey)" Name="RegisterManifest" Value="[REGISTER_MANIFEST]" Type="string" />
+              <RegistryValue Root="HKMU" Key="$(var.InstallerPropertiesKey)" Name="EnablePSRemoting" Value="[ENABLE_PSREMOTING]" Type="string" />
+              <RegistryValue Root="HKMU" Key="$(var.InstallerPropertiesKey)" Name="DisableTelemetry" Value="[DISABLE_TELEMETRY]" Type="string" />
+              <RegistryValue Root="HKMU" Key="$(var.InstallerPropertiesKey)" Name="AddExplorerContextMenuOpenPowerShell" Value="[ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL]" Type="string" />
+              <RegistryValue Root="HKMU" Key="$(var.InstallerPropertiesKey)" Name="AddFileContextMenuRunPowerShell" Value="[ADD_FILE_CONTEXT_MENU_RUNPOWERSHELL]" Type="string" />
+              <RegistryValue Root="HKMU" Key="$(var.InstallerPropertiesKey)" Name="UseMU" Value="[USE_MU]" Type="string" />
+              <RegistryValue Root="HKMU" Key="$(var.InstallerPropertiesKey)" Name="EnableMU" Value="[ENABLE_MU]" Type="string" />
             </Component>
           </Directory>
         </Directory>
