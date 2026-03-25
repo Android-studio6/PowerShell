@@ -30,3 +30,18 @@ updates:
       interval: daily
     labels:
       - "CL-BuildPackaging"
+
+  - package-ecosystem: "docker"
+    directory: "/tools/AttackSurfaceAnalyzer/docker"
+    schedule:
+      interval: daily
+    labels:
+      - "CL-BuildPackaging"
+
+  - package-ecosystem: "docker"
+    directory: "/tools/AttackSurfaceAnalyzer/docker"
+    target-branch: "release/*"
+    schedule:
+      interval: daily
+    labels:
+      - "CL-BuildPackaging"
