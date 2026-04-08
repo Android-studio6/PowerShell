@@ -97,7 +97,7 @@ Describe "Get-Credential Test" -Tag "CI" {
     }
     It "Get-Credential `$credential" {
         #[SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine", Justification="Demo/doc/test secret.")]
-        $password = ConvertTo-SecureString -String "CredTest" -AsPlainText -Force
+        $password = [System.Net.NetworkCredential]::new('', 'CredTest').SecurePassword
         $credential = [pscredential]::new("John", $password)
 
         $cred = Get-Credential $credential
